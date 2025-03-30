@@ -1,0 +1,13 @@
+﻿<Application x:Class="MemoryCardGameMAP.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MemoryCardGameMAP"
+             xmlns:viewModels="clr-namespace:MemoryCardGameMAP.ViewModels"
+             xmlns:views="clr-namespace:MemoryCardGameMAP.Views"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <DataTemplate DataType="{x:Type viewModels:LoginViewModel}">
+            <views:LoginView/>
+        </DataTemplate>
+    </Application.Resources>
+</Application>
