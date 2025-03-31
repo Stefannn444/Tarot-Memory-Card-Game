@@ -69,15 +69,6 @@ namespace MemoryCardGameMAP.ViewModels
             }
         }
 
-        private List<string> _availableImages;
-        private int _currentImageIndex = 0;
-
-        public string CurrentImagePath
-        {
-            get => _availableImages != null && _availableImages.Count > 0 ?
-                   _availableImages[_currentImageIndex] : null;
-        }
-
         public BitmapImage SelectedImagePreview
         {
             get
@@ -93,6 +84,18 @@ namespace MemoryCardGameMAP.ViewModels
                 return image;
             }
         }
+
+        private List<string> _availableImages;
+        private int _currentImageIndex = 0;
+
+        public string CurrentImagePath
+        {
+            get => _availableImages != null && _availableImages.Count > 0 ?
+                   _availableImages[_currentImageIndex] : null;
+        }
+
+       
+     
 
         // Commands
         public RelayCommand CreateUserCommand { get; private set; }

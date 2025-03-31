@@ -20,19 +20,21 @@ namespace MemoryCardGameMAP
     public partial class MainWindow : Window
     {
         private MainViewModel _mainViewModel;
+        private UserService _userService;
+
 
         public MainWindow()
         {
             InitializeComponent();
 
             // Create services
-            var userService = new UserService();
+            _userService = new UserService();
 
             // Create main view model
             _mainViewModel = new MainViewModel();
 
             // Set up login view model
-            var loginViewModel = new LoginViewModel(userService, OnUserLoggedIn);
+            var loginViewModel = new LoginViewModel(_userService, OnUserLoggedIn);
             _mainViewModel.CurrentViewModel = loginViewModel;
 
             // Set the DataContext
@@ -41,10 +43,16 @@ namespace MemoryCardGameMAP
 
         private void OnUserLoggedIn(User user)
         {
-            // TODO: Navigate to game view with the selected user
-            MessageBox.Show($"User {user.Username} logged in successfully!");
+            // Navigate to game view with the selected user
+            var gameViewModel = new GameViewModel(user, _userService, ReturnToLogin);
+            _mainViewModel.CurrentViewModel = gameViewModel;
+        }
 
-            // Here you would set _mainViewModel.CurrentViewModel to your game view model
+        private void ReturnToLogin()
+        {
+            // Navigate back to login screen
+            var loginViewModel = new LoginViewModel(_userService, OnUserLoggedIn);
+            _mainViewModel.CurrentViewModel = loginViewModel;
         }
     }
 }
