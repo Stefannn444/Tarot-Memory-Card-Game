@@ -30,5 +30,33 @@ namespace MemoryCardGameMAP.Models
                 OnPropertyChanged();
             }
         }
+
+        private int _gamesPlayed;
+        public int GamesPlayed
+        {
+            get => _gamesPlayed;
+            set
+            {
+                _gamesPlayed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _gamesWon;
+        public int GamesWon
+        {
+            get => _gamesWon;
+            set
+            {
+                _gamesWon = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public User()
+        {
+            GamesPlayed = 0;
+            GamesWon = 0;
+        }
     }
 }

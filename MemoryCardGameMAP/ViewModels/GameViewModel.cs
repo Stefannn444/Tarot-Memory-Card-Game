@@ -8,9 +8,17 @@ using System.Windows;
 using MemoryCardGameMAP.Services;
 using System.IO;
 using MemoryCardGameMAP.Views;
+using System.Text;
 
 namespace MemoryCardGameMAP.ViewModels
 {
+    //TODO: clear th ebaord when time s up
+    //TODO: BUG cu o carte rasucita cand dau save
+    //TODO: categoriile
+    //TODO: aspectul?
+    //TODO: ABOUT
+    //todo: timp custom
+    //todo: cand dau open la un joc, pot sa l termin de mai multe ori, si, astfel, farmez winuri
     public class GameViewModel : ViewModelBase
     {
         private readonly ViewModelBase _viewModelBase;
@@ -150,12 +158,6 @@ namespace MemoryCardGameMAP.ViewModels
             SetCategoryCommand = new RelayCommand(param => SetCategory(param as string));
             SetGameModeCommand = new RelayCommand(param => SetGameMode(param as string));
 
-
-            /*// Start a new game if category is provided
-            if (!string.IsNullOrEmpty(category))
-            {
-                StartNewGame(category);
-            }*/
         }
 
         private void OnTimerTick(object sender, EventArgs e)
@@ -214,23 +216,24 @@ namespace MemoryCardGameMAP.ViewModels
         }
         public void StartNewGame()
         {
-            // Create card pairs based on category
             string category = SelectedCategory;
             _cards.Clear();
             PairsMatched = 0;
 
-            // For demo, create 8 pairs (16 cards) SSSS
             _pairsTotal = (Rows*Columns)/2;
-            TimeRemaining = 120; // 2 minutes
+            TimeRemaining = 60 + (_pairsTotal * 10);
 
             // Load images for category
             string[] imagePaths = LoadImagesForCategory(category);
 
             // Create pairs and add to collection
             Random rnd = new Random();
+            
+            var shuffledImages=imagePaths.OrderBy(x=>rnd.Next()).ToArray();
+
             for (int i = 0; i < _pairsTotal; i++)
             {
-                string imagePath = imagePaths[i % imagePaths.Length];
+                string imagePath = shuffledImages[i % shuffledImages.Length];
 
                 // Create two cards with the same image
                 var card1 = new CardViewModel(imagePath, i);
@@ -244,10 +247,12 @@ namespace MemoryCardGameMAP.ViewModels
             }
 
             // Shuffle cards
-            ShuffleCards();
+            ShuffleCardPlacement();
 
             // Start timer
             _gameTimer.Start();
+            _currentUser.GamesPlayed++;
+            _userService.UpdateUser(_currentUser);
         }
 
         private string[] LoadImagesForCategory(string category)
@@ -257,9 +262,6 @@ namespace MemoryCardGameMAP.ViewModels
                 MessageBox.Show("No category specified. Loading default images.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return new string[0];
             }
-
-
-
 
             // Define the path to the category folder
             string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cards", category);
@@ -284,7 +286,7 @@ namespace MemoryCardGameMAP.ViewModels
             return imageFiles;
         }
 
-        private void ShuffleCards()
+        private void ShuffleCardPlacement()
         {
             var list = _cards.ToList();
             Random rnd = new Random();
@@ -327,7 +329,10 @@ namespace MemoryCardGameMAP.ViewModels
                     if (PairsMatched >= PairsTotal)
                     {
                         _gameTimer.Stop();
+                        _currentUser.GamesWon++;
+                        _userService.UpdateUser(_currentUser);
                         MessageBox.Show("Congratulations! You've matched all pairs!", "Game Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    
                     }
 
                     _firstSelectedCard = null;
@@ -355,20 +360,119 @@ namespace MemoryCardGameMAP.ViewModels
 
         private void OpenGame()
         {
-            // Implementation for loading a saved game
-            MessageBox.Show("Open game functionality not implemented yet");
+            try
+            {
+                // Check if saved game exists
+                string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedGames", $"{_currentUser.Username}.json");
+                if (!File.Exists(saveFile))
+                {
+                    MessageBox.Show("No saved game found.", "Open Game", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Load saved game
+                string json = File.ReadAllText(saveFile);
+                var savedGame = System.Text.Json.JsonSerializer.Deserialize<SavedGame>(json);
+
+                // Stop current game if running
+                _gameTimer.Stop();
+
+                // Restore game state
+                SelectedCategory = savedGame.Category;
+                Rows = savedGame.Rows;
+                Columns = savedGame.Columns;
+                TimeRemaining = savedGame.TimeRemaining;
+                _pairsTotal = (Rows * Columns) / 2;
+
+                // Clear current cards
+                _cards.Clear();
+                foreach (var item in savedGame.Cards)
+                {
+                    var card = new CardViewModel(item.ImagePath, item.PairId);
+                    card.IsFaceUp = item.IsFaceUp;
+                    card.IsMatched = item.IsMatched;
+                    card.CardClicked += OnCardClicked;
+                    _cards.Add(card);
+                }
+
+                // Count matched pairs
+                PairsMatched = _cards.Count(c => c.IsMatched) / 2;
+
+                // Reset selection state
+                _firstSelectedCard = null;
+                _canSelectCard = true;
+
+                // Resume timer
+                _gameTimer.Start();
+
+                MessageBox.Show("Game loaded successfully!", "Open Game", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SaveGame()
         {
-            // Implementation for saving current game
-            MessageBox.Show("Save game functionality not implemented yet");
+            try
+            {
+                // Create game state to save
+                var gameState = new SavedGame
+                {
+                    Category = SelectedCategory,
+                    Rows = Rows,
+                    Columns = Columns,
+                    TimeRemaining = TimeRemaining,
+                    ElapsedTime = 120 - TimeRemaining, // Assuming 120 was initial time
+                    SavedDate = DateTime.Now,
+                    Cards = _cards.Select(c => new SavedCard
+                    {
+                        ImagePath = c.ImagePath,
+                        PairId = c.PairId,
+                        IsFaceUp = c.IsFaceUp,
+                        IsMatched = c.IsMatched
+                    }).ToList()
+                };
+
+                // Pause the timer
+                _gameTimer.Stop();
+
+                // Create directory if it doesn't exist
+                string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedGames");
+                Directory.CreateDirectory(saveDir);
+
+                // Save to user-specific file
+                string saveFile = Path.Combine(saveDir, $"{_currentUser.Username}.json");
+                string json = System.Text.Json.JsonSerializer.Serialize(gameState);
+                File.WriteAllText(saveFile, json);
+
+                MessageBox.Show("Game saved successfully!", "Save Game", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _gameTimer.Start(); // Restart timer if save failed
+            }
+
         }
 
         private void ShowStatistics()
         {
-            // Implementation for showing statistics
-            MessageBox.Show("Statistics functionality not implemented yet");
+            var allUsers = _userService.GetAllUsers();
+
+            // Create a formatted string with all users' statistics
+            StringBuilder statsBuilder = new StringBuilder("User Statistics:\n\n");
+
+            foreach (var user in allUsers)
+            {
+                statsBuilder.AppendLine($"Username: {user.Username}");
+                statsBuilder.AppendLine($"Games Played: {user.GamesPlayed}");
+                statsBuilder.AppendLine($"Games Won: {user.GamesWon}");
+                statsBuilder.AppendLine();
+            }
+
+            MessageBox.Show(statsBuilder.ToString(), "Game Statistics", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void Exit()

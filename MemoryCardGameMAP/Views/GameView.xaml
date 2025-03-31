@@ -50,7 +50,7 @@
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Cards}" Margin="20">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Columns="4" Rows="4"/>
+                    <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

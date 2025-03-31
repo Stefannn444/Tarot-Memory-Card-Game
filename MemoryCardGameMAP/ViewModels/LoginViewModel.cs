@@ -218,29 +218,6 @@ namespace MemoryCardGameMAP.ViewModels
             SelectedUser = null;
         }
 
-        /* private void BrowseImage()
-         {
-             var dialog = new OpenFileDialog
-             {
-                 Filter = "Image files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif",
-                 Title = "Select user image"
-             };
-
-             if (dialog.ShowDialog() == true)
-             {
-                 // Store relative path if possible
-                 string projectDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                 string filePath = dialog.FileName;
-
-                 // Try to make path relative if file is within app directory
-                 if (filePath.StartsWith(projectDirectory))
-                 {
-                     filePath = filePath.Substring(projectDirectory.Length);
-                 }
-
-                 SelectedImagePath = filePath;
-             }
-         }*/
         private void BrowseImage()
         {
             var dialog = new OpenFileDialog

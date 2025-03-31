@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MemoryCardGameMAP.Services
 {
@@ -54,7 +55,6 @@ namespace MemoryCardGameMAP.Services
 
                 // Delete user game saves and statistics
                 DeleteUserGameSaves(username);
-                DeleteUserStatistics(username);
             }
         }
 
@@ -66,16 +66,40 @@ namespace MemoryCardGameMAP.Services
 
         private void DeleteUserGameSaves(string username)
         {
-            // Implementation to delete user's saved games
-            string saveFilePath = $"{username}_save.json";
-            if (File.Exists(saveFilePath))
-                File.Delete(saveFilePath);
+            try
+            {
+                string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedGames", $"{username}.json");
+                if (File.Exists(saveFile))
+                {
+                    File.Delete(saveFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to delete saved game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void DeleteUserStatistics(string username)
+        public void UpdateUser(User user)
         {
-            // Implementation would depend on how you store statistics
-            // This is just a placeholder
+            if (user == null || string.IsNullOrEmpty(user.Username))
+                return;
+
+            var users = GetAllUsers();
+
+            // Find and update the user
+            var existingUser = users.FirstOrDefault(u =>
+                u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
+
+            if (existingUser != null)
+            {
+                // Update the user properties
+                int index = users.IndexOf(existingUser);
+                users[index] = user;
+
+                // Save the updated list
+                SaveUsers(users);
+            }
         }
     }
 }
