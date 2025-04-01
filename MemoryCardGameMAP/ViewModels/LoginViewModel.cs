@@ -27,10 +27,8 @@ namespace MemoryCardGameMAP.ViewModels
         private readonly UserService _userService;
         private readonly Action<User> _onLoginSuccessful;
 
-        // Collection of existing users
         public ObservableCollection<User> Users { get; } = new ObservableCollection<User>();
 
-        // Selected user for login
         private User _selectedUser;
         public User SelectedUser
         {
@@ -43,7 +41,6 @@ namespace MemoryCardGameMAP.ViewModels
             }
         }
 
-        // New user creation properties
         private string _newUsername;
         public string NewUsername
         {
@@ -97,10 +94,8 @@ namespace MemoryCardGameMAP.ViewModels
        
      
 
-        // Commands
         public RelayCommand CreateUserCommand { get; private set; }
         public RelayCommand DeleteUserCommand { get; private set; }
-        public RelayCommand BrowseImageCommand { get; private set; }
         public RelayCommand PlayCommand { get; private set; }
         public RelayCommand NextImageCommand { get; private set; }
         public RelayCommand PreviousImageCommand { get; private set; }
@@ -112,15 +107,12 @@ namespace MemoryCardGameMAP.ViewModels
 
             LoadAvailableImages();
 
-            // Initialize commands
             NextImageCommand = new RelayCommand(param => NextImage(), param => CanNavigateImages());
             PreviousImageCommand = new RelayCommand(param => PreviousImage(), param => CanNavigateImages());
             CreateUserCommand = new RelayCommand(param=>CreateUser(), param=>CanCreateUser());
             DeleteUserCommand = new RelayCommand(param=>DeleteUser(), param=>CanDeleteUser());
-            BrowseImageCommand = new RelayCommand(param=>BrowseImage());
             PlayCommand = new RelayCommand(param=>Play(), param=>CanPlay());
 
-            // Load existing users
             LoadUsers();
 
             if (_availableImages.Count > 0)
@@ -147,7 +139,6 @@ namespace MemoryCardGameMAP.ViewModels
             }
             catch (Exception ex)
             {
-                // Handle or log error
                 System.Diagnostics.Debug.WriteLine($"Error loading images: {ex.Message}");
             }
         }
@@ -201,7 +192,6 @@ namespace MemoryCardGameMAP.ViewModels
             _userService.AddUser(newUser);
             Users.Add(newUser);
 
-            // Reset form
             NewUsername = string.Empty;
             SelectedImagePath = string.Empty;
         }
@@ -218,41 +208,8 @@ namespace MemoryCardGameMAP.ViewModels
             SelectedUser = null;
         }
 
-        private void BrowseImage()
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Image files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif",
-                Title = "Select user image"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    // Create images directory if it doesn't exist
-                    string imagesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UserImages");
-                    if (!Directory.Exists(imagesDirectory))
-                    {
-                        Directory.CreateDirectory(imagesDirectory);
-                    }
-
-                    // Generate unique filename
-                    string fileName = $"{Guid.NewGuid()}{Path.GetExtension(dialog.FileName)}";
-                    string destinationPath = Path.Combine(imagesDirectory, fileName);
-
-                    // Copy the selected image to our app's directory
-                    File.Copy(dialog.FileName, destinationPath);
-
-                    // Store the relative path
-                    SelectedImagePath = Path.Combine("UserImages", fileName);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error saving image: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
+        
+        
 
         private bool CanPlay()
         {

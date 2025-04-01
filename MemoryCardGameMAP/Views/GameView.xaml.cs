@@ -23,5 +23,17 @@ namespace MemoryCardGameMAP.Views
         {
             InitializeComponent();
         }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Credits:\n\n" +
+                "Jîtea Ștefan-Alexandru\n" +
+                "stefan.jitea@student.unitbv.ro\n" +
+                "10LF232\n" +
+                "Informatica",
+                "About",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
     }
 }

@@ -34,7 +34,6 @@ namespace MemoryCardGameMAP.Services
         {
             var users = GetAllUsers();
 
-            // Check if username already exists
             if (users.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException($"User '{user.Username}' already exists");
 
@@ -53,7 +52,6 @@ namespace MemoryCardGameMAP.Services
                 users.Remove(userToRemove);
                 SaveUsers(users);
 
-                // Delete user game saves and statistics
                 DeleteUserGameSaves(username);
             }
         }
@@ -87,17 +85,14 @@ namespace MemoryCardGameMAP.Services
 
             var users = GetAllUsers();
 
-            // Find and update the user
             var existingUser = users.FirstOrDefault(u =>
                 u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase));
 
             if (existingUser != null)
             {
-                // Update the user properties
                 int index = users.IndexOf(existingUser);
                 users[index] = user;
 
-                // Save the updated list
                 SaveUsers(users);
             }
         }

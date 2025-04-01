@@ -12,12 +12,10 @@ using System.Text;
 
 namespace MemoryCardGameMAP.ViewModels
 {
-    //TODO: clear th ebaord when time s up
-    //TODO: BUG cu o carte rasucita cand dau save
+    //TODO: clear th ebaord when time s up?
     //TODO: categoriile
     //TODO: aspectul?
-    //TODO: ABOUT
-    //todo: timp custom
+
     //todo: cand dau open la un joc, pot sa l termin de mai multe ori, si, astfel, farmez winuri
     public class GameViewModel : ViewModelBase
     {
@@ -28,7 +26,7 @@ namespace MemoryCardGameMAP.ViewModels
         private readonly DispatcherTimer _gameTimer;
         private readonly Action _onReturnToLogin;
 
-        // Game properties
+        private bool _isGameInactive = true;
         private ObservableCollection<CardViewModel> _cards = new ObservableCollection<CardViewModel>();
         private int _timeRemaining;
         private int _pairsMatched;
@@ -38,7 +36,7 @@ namespace MemoryCardGameMAP.ViewModels
 
         public ObservableCollection<CardViewModel> Cards => _cards;
 
-        private int _rows = 4; // Default values
+        private int _rows = 4; 
         private int _columns = 4;
 
         public int Rows
@@ -81,7 +79,7 @@ namespace MemoryCardGameMAP.ViewModels
             }
         }
 
-        private string _selectedCategory = "Tarot"; // default option
+        private string _selectedCategory = "Rider-Waite";
         public string SelectedCategory
         {
             get => _selectedCategory;
@@ -93,8 +91,7 @@ namespace MemoryCardGameMAP.ViewModels
         }
 
 
-        //TODO unique selection
-        private bool _isStandardMode = true; // Default to standard 4x4
+        private bool _isStandardMode = true;    
         public bool IsStandardMode
         {
             get => _isStandardMode;
@@ -126,9 +123,29 @@ namespace MemoryCardGameMAP.ViewModels
             }
         }
 
+        public bool IsGameInactive
+        {
+            get => _isGameInactive;
+            set
+            {
+                _isGameInactive = value;
+                OnPropertyChanged();
+            }
+        }
+
         public int PairsTotal => _pairsTotal;
 
-        // Commands
+        private bool _isUsingCustomTime = false;
+        public bool IsUsingCustomTime
+        {
+            get => _isUsingCustomTime;
+            set
+            {
+                _isUsingCustomTime = value;
+                OnPropertyChanged();
+            }
+        }
+
         public RelayCommand NewGameCommand { get; private set; }
         public RelayCommand OpenGameCommand { get; private set; }
         public RelayCommand SaveGameCommand { get; private set; }
@@ -136,7 +153,7 @@ namespace MemoryCardGameMAP.ViewModels
         public RelayCommand ExitCommand { get; private set; }
         public RelayCommand SetCategoryCommand { get; private set; }
         public RelayCommand SetGameModeCommand { get; private set; }
-
+        public RelayCommand SetTimeCommand { get; private set; }
 
         public GameViewModel(User currentUser, UserService userService, Action onReturnToLogin)
         {
@@ -144,12 +161,10 @@ namespace MemoryCardGameMAP.ViewModels
             _userService = userService;
             _onReturnToLogin = onReturnToLogin;
 
-            // Initialize timer
             _gameTimer = new DispatcherTimer();
             _gameTimer.Interval = TimeSpan.FromSeconds(1);
             _gameTimer.Tick += OnTimerTick;
 
-            // Initialize commands
             NewGameCommand = new RelayCommand(param => StartNewGame());
             OpenGameCommand = new RelayCommand(param => OpenGame());
             SaveGameCommand = new RelayCommand(param => SaveGame());
@@ -157,7 +172,7 @@ namespace MemoryCardGameMAP.ViewModels
             ExitCommand = new RelayCommand(param => Exit());
             SetCategoryCommand = new RelayCommand(param => SetCategory(param as string));
             SetGameModeCommand = new RelayCommand(param => SetGameMode(param as string));
-
+            SetTimeCommand = new RelayCommand(param => SetTime(param as string));
         }
 
         private void OnTimerTick(object sender, EventArgs e)
@@ -167,6 +182,7 @@ namespace MemoryCardGameMAP.ViewModels
             if (TimeRemaining <= 0)
             {
                 _gameTimer.Stop();
+                IsGameInactive = true;
                 MessageBox.Show("Time's up! Game over.", "Game Over", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
@@ -205,8 +221,33 @@ namespace MemoryCardGameMAP.ViewModels
                     IsCustomMode=false;
                 }
             }
+            if (!IsUsingCustomTime)
+            {
+                _pairsTotal = (Rows * Columns) / 2;
+                TimeRemaining = 60 + (_pairsTotal * 10);
+            }
         }
 
+        private void SetTime(string mode)
+        {
+            if (mode == "Custom")
+            {
+                List<string> labels = new List<string>
+                {
+                    "Time (in seconds): "
+                };
+                DialogWindow window = new DialogWindow(_viewModelBase, labels);
+                window.ShowDialog();
+                List<double> parameters = window.GetValues();
+                TimeRemaining = (int)parameters[0];
+                IsUsingCustomTime = true;
+            }
+            else if (mode == "Default")
+            {
+                TimeRemaining = 60 + (_pairsTotal * 10);
+                IsUsingCustomTime = false;
+            }
+        }
         private void SetCategory(string category)
         {
             if (!string.IsNullOrEmpty(category))
@@ -216,17 +257,22 @@ namespace MemoryCardGameMAP.ViewModels
         }
         public void StartNewGame()
         {
+            IsGameInactive = false;
+
             string category = SelectedCategory;
             _cards.Clear();
             PairsMatched = 0;
 
             _pairsTotal = (Rows*Columns)/2;
-            TimeRemaining = 60 + (_pairsTotal * 10);
 
-            // Load images for category
+            if (TimeRemaining <= 0)
+            {
+                TimeRemaining = 60 + (_pairsTotal * 10);
+            }
+
+
             string[] imagePaths = LoadImagesForCategory(category);
 
-            // Create pairs and add to collection
             Random rnd = new Random();
             
             var shuffledImages=imagePaths.OrderBy(x=>rnd.Next()).ToArray();
@@ -235,7 +281,6 @@ namespace MemoryCardGameMAP.ViewModels
             {
                 string imagePath = shuffledImages[i % shuffledImages.Length];
 
-                // Create two cards with the same image
                 var card1 = new CardViewModel(imagePath, i);
                 var card2 = new CardViewModel(imagePath, i);
 
@@ -246,10 +291,8 @@ namespace MemoryCardGameMAP.ViewModels
                 _cards.Add(card2);
             }
 
-            // Shuffle cards
             ShuffleCardPlacement();
 
-            // Start timer
             _gameTimer.Start();
             _currentUser.GamesPlayed++;
             _userService.UpdateUser(_currentUser);
@@ -263,7 +306,6 @@ namespace MemoryCardGameMAP.ViewModels
                 return new string[0];
             }
 
-            // Define the path to the category folder
             string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cards", category);
 
             if (!Directory.Exists(basePath))
@@ -272,9 +314,8 @@ namespace MemoryCardGameMAP.ViewModels
                 return new string[0];
             }
 
-            // Load all image files from the category folder (assuming PNG and JPG formats)
             string[] imageFiles = Directory.GetFiles(basePath, "*.png")
-                                           //.Concat(Directory.GetFiles(basePath, "*.jpg"))
+                                           .Concat(Directory.GetFiles(basePath, "*.jpg"))
                                            .ToArray();
 
             if (imageFiles.Length == 0)
@@ -305,23 +346,18 @@ namespace MemoryCardGameMAP.ViewModels
             if (!_canSelectCard || card.IsMatched || card.IsFaceUp)
                 return;
 
-            // Flip card
             card.IsFaceUp = true;
 
             if (_firstSelectedCard == null)
             {
-                // First card of pair
                 _firstSelectedCard = card;
             }
             else
             {
-                // Second card of pair
                 _canSelectCard = false;
 
-                // Check if cards match
                 if (_firstSelectedCard.PairId == card.PairId)
                 {
-                    // Match found
                     _firstSelectedCard.IsMatched = true;
                     card.IsMatched = true;
                     PairsMatched++;
@@ -329,6 +365,7 @@ namespace MemoryCardGameMAP.ViewModels
                     if (PairsMatched >= PairsTotal)
                     {
                         _gameTimer.Stop();
+                        IsGameInactive = true;
                         _currentUser.GamesWon++;
                         _userService.UpdateUser(_currentUser);
                         MessageBox.Show("Congratulations! You've matched all pairs!", "Game Complete", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -340,10 +377,8 @@ namespace MemoryCardGameMAP.ViewModels
                 }
                 else
                 {
-                    // No match
                     var firstCard = _firstSelectedCard;
 
-                    // Delay before flipping back
                     var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                     timer.Tick += (sender, e) =>
                     {
@@ -362,7 +397,6 @@ namespace MemoryCardGameMAP.ViewModels
         {
             try
             {
-                // Check if saved game exists
                 string saveFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedGames", $"{_currentUser.Username}.json");
                 if (!File.Exists(saveFile))
                 {
@@ -370,21 +404,20 @@ namespace MemoryCardGameMAP.ViewModels
                     return;
                 }
 
-                // Load saved game
                 string json = File.ReadAllText(saveFile);
                 var savedGame = System.Text.Json.JsonSerializer.Deserialize<SavedGame>(json);
 
-                // Stop current game if running
                 _gameTimer.Stop();
 
-                // Restore game state
                 SelectedCategory = savedGame.Category;
                 Rows = savedGame.Rows;
                 Columns = savedGame.Columns;
                 TimeRemaining = savedGame.TimeRemaining;
                 _pairsTotal = (Rows * Columns) / 2;
+                IsUsingCustomTime = savedGame.IsUsingCustomTime;
+                IsStandardMode = savedGame.IsStandardMode;
+                IsGameInactive= savedGame.IsGameInactive;
 
-                // Clear current cards
                 _cards.Clear();
                 foreach (var item in savedGame.Cards)
                 {
@@ -395,14 +428,12 @@ namespace MemoryCardGameMAP.ViewModels
                     _cards.Add(card);
                 }
 
-                // Count matched pairs
                 PairsMatched = _cards.Count(c => c.IsMatched) / 2;
 
-                // Reset selection state
-                _firstSelectedCard = null;
-                _canSelectCard = true;
+                _firstSelectedCard = savedGame.FirstSelectedCardIndex.HasValue ?
+                    _cards[savedGame.FirstSelectedCardIndex.Value] : null;
+                _canSelectCard = savedGame.CanSelectCard;
 
-                // Resume timer
                 _gameTimer.Start();
 
                 MessageBox.Show("Game loaded successfully!", "Open Game", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -417,32 +448,34 @@ namespace MemoryCardGameMAP.ViewModels
         {
             try
             {
-                // Create game state to save
                 var gameState = new SavedGame
                 {
                     Category = SelectedCategory,
                     Rows = Rows,
                     Columns = Columns,
                     TimeRemaining = TimeRemaining,
-                    ElapsedTime = 120 - TimeRemaining, // Assuming 120 was initial time
-                    SavedDate = DateTime.Now,
+                    IsUsingCustomTime = IsUsingCustomTime,
+                    IsStandardMode = IsStandardMode,
+                    IsCustomMode = IsCustomMode,
+                    IsGameInactive=IsGameInactive,
+                    //SavedDate = DateTime.Now,
                     Cards = _cards.Select(c => new SavedCard
                     {
                         ImagePath = c.ImagePath,
                         PairId = c.PairId,
                         IsFaceUp = c.IsFaceUp,
                         IsMatched = c.IsMatched
-                    }).ToList()
+                    }).ToList(),
+                    CanSelectCard = _canSelectCard,
+                    FirstSelectedCardIndex = _firstSelectedCard != null ?
+                                _cards.IndexOf(_firstSelectedCard) : null
                 };
 
-                // Pause the timer
                 _gameTimer.Stop();
 
-                // Create directory if it doesn't exist
                 string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SavedGames");
                 Directory.CreateDirectory(saveDir);
 
-                // Save to user-specific file
                 string saveFile = Path.Combine(saveDir, $"{_currentUser.Username}.json");
                 string json = System.Text.Json.JsonSerializer.Serialize(gameState);
                 File.WriteAllText(saveFile, json);
@@ -452,7 +485,7 @@ namespace MemoryCardGameMAP.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to save game: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                _gameTimer.Start(); // Restart timer if save failed
+                _gameTimer.Start(); 
             }
 
         }
@@ -461,7 +494,6 @@ namespace MemoryCardGameMAP.ViewModels
         {
             var allUsers = _userService.GetAllUsers();
 
-            // Create a formatted string with all users' statistics
             StringBuilder statsBuilder = new StringBuilder("User Statistics:\n\n");
 
             foreach (var user in allUsers)

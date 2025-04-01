@@ -12,9 +12,15 @@ namespace MemoryCardGameMAP.Models
         public int Rows { get; set; }
         public int Columns { get; set; }
         public int TimeRemaining { get; set; }
-        public int ElapsedTime { get; set; }
+        public bool IsUsingCustomTime { get; set; }
+        public bool IsStandardMode { get; set; }
+        public bool IsCustomMode { get; set; }
         public List<SavedCard> Cards { get; set; } = new List<SavedCard>();
-        public DateTime SavedDate { get; set; }
+        public bool IsGameInactive { get; set; }
+        //public DateTime SavedDate { get; set; }
+        public bool CanSelectCard { get; set; }
+        public int? FirstSelectedCardIndex { get; set; }
+
     }
 
     public class SavedCard

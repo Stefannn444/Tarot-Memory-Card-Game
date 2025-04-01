@@ -22,19 +22,33 @@
                 <Separator/>
                 <MenuItem Header="Exit" Command="{Binding ExitCommand}"/>
             </MenuItem>
-            <MenuItem Header="Options">
+            <MenuItem Header="Options" IsEnabled="{Binding IsGameInactive}">
                 <MenuItem Header="Standard (4x4)" IsCheckable="True" IsChecked="{Binding IsStandardMode}"
                           Command="{Binding SetGameModeCommand}" CommandParameter="Standard"/>
                 <MenuItem Header="Custom" IsCheckable="True" IsChecked="{Binding IsCustomMode}"
                           Command="{Binding SetGameModeCommand}" CommandParameter="Custom"/>
+                <MenuItem Header="Time">
+                    <MenuItem Header="Custom Time"
+                              Command="{Binding SetTimeCommand}" CommandParameter="Custom"/>
+                    <MenuItem Header="Default Time"
+                              Command="{Binding SetTimeCommand}" CommandParameter="Default"/>
+                </MenuItem>
                 <MenuItem Header="Categories">
-                    <MenuItem Header="Tarot" IsCheckable="True"  Command="{Binding SetCategoryCommand}" CommandParameter="Tarot"/>
+                    <MenuItem Header="Rider-Waite" IsCheckable="True" IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Rider-Waite}"
+                              Command="{Binding SetCategoryCommand}" CommandParameter="Rider-Waite"/>
+                    <MenuItem Header="Mantegna" IsCheckable="True" IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Mantegna}"
+                              Command="{Binding SetCategoryCommand}" CommandParameter="Mantegna"/>
+                    <MenuItem Header="Marseille" IsCheckable="True" IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Marseille}"
+                              Command="{Binding SetCategoryCommand}" CommandParameter="Marseille"/>
+                    <MenuItem Header="Fireproof Games" IsCheckable="True" IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Fireproof Games}"
+                              Command="{Binding SetCategoryCommand}" CommandParameter="Fireproof Games"/>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Statistics" Command="{Binding ShowStatisticsCommand}"/>
-            <MenuItem Header="Help"/>
-            <MenuItem Header="About"/>
-        </Menu>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Click="About_Click"/>
+            </MenuItem>
+            </Menu>
 
         <!-- Game status -->
         <StackPanel Grid.Row="0" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,2,10,2">
