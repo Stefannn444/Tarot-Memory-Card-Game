@@ -37,8 +37,7 @@
 				<DataTemplate>
 					<StackPanel>
 						<TextBlock Text="{Binding Path=ParamText}"
-						           Height="{Binding Path=Height}"
-						           Foreground="{Binding Path=Foreground}"/>
+						           Height="{Binding Path=Height}"/>
 
 						<TextBox Text="{Binding Path=InputText}"
 						         Height="{Binding Path=Height}"/>

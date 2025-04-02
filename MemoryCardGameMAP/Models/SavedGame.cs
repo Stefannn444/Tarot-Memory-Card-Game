@@ -26,6 +26,7 @@ namespace MemoryCardGameMAP.Models
     public class SavedCard
     {
         public string ImagePath { get; set; }
+        public string CardBackImagePath { get; set; }
         public int PairId { get; set; }
         public bool IsFaceUp { get; set; }
         public bool IsMatched { get; set; }

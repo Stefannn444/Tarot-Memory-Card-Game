@@ -9,6 +9,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BackgroundImages\Fireproof Games.jpg" />
+    <None Remove="BackgroundImages\FireproofGames.jpg" />
+    <None Remove="BackgroundImages\FPGames.jpg" />
+    <None Remove="BackgroundImages\Mantegna.jpg" />
+    <None Remove="BackgroundImages\Marseille.jpg" />
+    <None Remove="BackgroundImages\Rider-Waite.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="BackgroundImages\FPGames.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BackgroundImages\Mantegna.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BackgroundImages\Marseille.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BackgroundImages\Rider-Waite.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="AvatarImages\" />
     <Folder Include="Cards\Mantegna\" />
     <Folder Include="Cards\Rider-Waite\" />
@@ -21,7 +45,43 @@
     <None Update="AvatarImages\3e911eb0dc160cf07efd7a9fe2fa4035--vintage-pictures-vintage-images.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="AvatarImages\Amethyst.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\GreenAgate.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\Lapis.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\Moonstone.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="AvatarImages\OIP.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\Onyx.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\Quartz.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\RedJasper.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AvatarImages\TigerEye.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Cards\Back\Fireproof Games.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Cards\Back\Mantegna.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Cards\Back\Marseille.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Cards\Back\Rider-Waite.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Cards\Fireproof Games\Cosmos.jpg">
@@ -541,6 +601,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Cards\Rider-Waite\21-TheWorld.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Cards\Rider-Waite\back.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Cards\Rider-Waite\Cups01.png">

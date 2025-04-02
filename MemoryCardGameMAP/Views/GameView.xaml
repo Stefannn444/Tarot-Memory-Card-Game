@@ -61,33 +61,30 @@
         </StackPanel>
 
         <!-- Game board -->
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Cards}" Margin="20">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Button Command="{Binding ClickCommand}" Margin="5" Padding="0">
-                        <Grid>
-                            <Border Background="LightBlue" BorderBrush="Gray" BorderThickness="1">
-                                <TextBlock Text="?" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                          Visibility="{Binding IsFaceUp, Converter={StaticResource BoolToInverseVisibilityConverter}}"/>
-                            </Border>
-                            <Image Source="{Binding ImagePath}" Stretch="Uniform" Margin="5"
-                                  Visibility="{Binding IsFaceUp, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        </Grid>
-                    </Button>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
-        <!-- Status bar -->
-        <StatusBar Grid.Row="2">
-            <StatusBarItem>
-                <TextBlock Text="Ready"/>
-            </StatusBarItem>
-        </StatusBar>
+        <Grid Grid.Row="1">
+            <Image Source="{Binding SelectedCategory, Converter={StaticResource StringToCategoryImageConverter}}"
+	                Stretch="UniformToFill" Opacity="0.6" />
+            <ItemsControl ItemsSource="{Binding Cards}" Margin="40">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="{Binding Columns}" Rows="{Binding Rows}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding ClickCommand}" Margin="3" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid>
+                                <Border Background="LightBlue" BorderBrush="Gray" BorderThickness="1"
+		                            Visibility="{Binding IsFaceUp, Converter={StaticResource BoolToInverseVisibilityConverter}}">
+                                    <Image Source="{Binding CardBackImagePath}" Stretch="Uniform" Margin="3"/>
+                                </Border>
+                                <Image Source="{Binding ImagePath}" Stretch="Uniform" Margin="3"
+		                           Visibility="{Binding IsFaceUp, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>

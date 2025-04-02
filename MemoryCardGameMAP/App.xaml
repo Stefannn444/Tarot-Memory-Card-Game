@@ -19,5 +19,6 @@
 	    <common:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 	    <common:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
         <common:CategoryToBoolConverter x:Key="CategoryToBoolConverter"/>
+        <common:StringToCategoryImageConverter x:Key="StringToCategoryImageConverter"/>
     </Application.Resources>
 </Application>

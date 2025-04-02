@@ -16,9 +16,7 @@ using MemoryCardGameMAP.ViewModels;
 
 namespace MemoryCardGameMAP.Views
 {
-    /// <summary>
-    /// Interaction logic for DialogWindow.xaml
-    /// </summary>
+    
     public partial class DialogWindow : Window
     {
         private readonly DialogViewModel _dialogVM;

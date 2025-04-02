@@ -12,11 +12,6 @@ using System.Text;
 
 namespace MemoryCardGameMAP.ViewModels
 {
-    //TODO: clear th ebaord when time s up?
-    //TODO: categoriile
-    //TODO: aspectul?
-
-    //todo: cand dau open la un joc, pot sa l termin de mai multe ori, si, astfel, farmez winuri
     public class GameViewModel : ViewModelBase
     {
         private readonly ViewModelBase _viewModelBase;
@@ -133,7 +128,15 @@ namespace MemoryCardGameMAP.ViewModels
             }
         }
 
-        public int PairsTotal => _pairsTotal;
+        public int PairsTotal
+        {
+            get => _pairsTotal;
+            set
+            {
+                _pairsTotal = value;
+                OnPropertyChanged();
+            }
+        }
 
         private bool _isUsingCustomTime = false;
         public bool IsUsingCustomTime
@@ -223,8 +226,8 @@ namespace MemoryCardGameMAP.ViewModels
             }
             if (!IsUsingCustomTime)
             {
-                _pairsTotal = (Rows * Columns) / 2;
-                TimeRemaining = 60 + (_pairsTotal * 10);
+                PairsTotal = (Rows * Columns) / 2;
+                TimeRemaining = 60 + (PairsTotal * 10);
             }
         }
 
@@ -244,7 +247,7 @@ namespace MemoryCardGameMAP.ViewModels
             }
             else if (mode == "Default")
             {
-                TimeRemaining = 60 + (_pairsTotal * 10);
+                TimeRemaining = 60 + (PairsTotal * 10);
                 IsUsingCustomTime = false;
             }
         }
@@ -263,26 +266,27 @@ namespace MemoryCardGameMAP.ViewModels
             _cards.Clear();
             PairsMatched = 0;
 
-            _pairsTotal = (Rows*Columns)/2;
+            PairsTotal = (Rows*Columns)/2;
 
-            if (TimeRemaining <= 0)
+            if (!IsUsingCustomTime)
             {
-                TimeRemaining = 60 + (_pairsTotal * 10);
+                TimeRemaining = 60 + (PairsTotal * 10);
             }
 
 
             string[] imagePaths = LoadImagesForCategory(category);
+            string cardBackImagePath = LoadCardBackForCategory(category);
 
             Random rnd = new Random();
             
             var shuffledImages=imagePaths.OrderBy(x=>rnd.Next()).ToArray();
 
-            for (int i = 0; i < _pairsTotal; i++)
+            for (int i = 0; i < PairsTotal; i++)
             {
                 string imagePath = shuffledImages[i % shuffledImages.Length];
 
-                var card1 = new CardViewModel(imagePath, i);
-                var card2 = new CardViewModel(imagePath, i);
+                var card1 = new CardViewModel(imagePath, i,cardBackImagePath);
+                var card2 = new CardViewModel(imagePath, i, cardBackImagePath);
 
                 card1.CardClicked += OnCardClicked;
                 card2.CardClicked += OnCardClicked;
@@ -326,8 +330,20 @@ namespace MemoryCardGameMAP.ViewModels
 
             return imageFiles;
         }
+        private string LoadCardBackForCategory(string category)
+        {
+            string cardBackPng = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cards", "Back",category+".png");
+            if (File.Exists(cardBackPng))
+                return cardBackPng;
 
-        private void ShuffleCardPlacement()
+            string cardBackJpg = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Cards","Back", category+".jpg");
+            if (File.Exists(cardBackJpg))
+                return cardBackJpg;
+
+            return cardBackPng;
+        }
+
+            private void ShuffleCardPlacement()
         {
             var list = _cards.ToList();
             Random rnd = new Random();
@@ -413,7 +429,7 @@ namespace MemoryCardGameMAP.ViewModels
                 Rows = savedGame.Rows;
                 Columns = savedGame.Columns;
                 TimeRemaining = savedGame.TimeRemaining;
-                _pairsTotal = (Rows * Columns) / 2;
+                PairsTotal = (Rows * Columns) / 2;
                 IsUsingCustomTime = savedGame.IsUsingCustomTime;
                 IsStandardMode = savedGame.IsStandardMode;
                 IsGameInactive= savedGame.IsGameInactive;
@@ -421,7 +437,7 @@ namespace MemoryCardGameMAP.ViewModels
                 _cards.Clear();
                 foreach (var item in savedGame.Cards)
                 {
-                    var card = new CardViewModel(item.ImagePath, item.PairId);
+                    var card = new CardViewModel(item.ImagePath, item.PairId,item.CardBackImagePath);
                     card.IsFaceUp = item.IsFaceUp;
                     card.IsMatched = item.IsMatched;
                     card.CardClicked += OnCardClicked;
@@ -458,7 +474,6 @@ namespace MemoryCardGameMAP.ViewModels
                     IsStandardMode = IsStandardMode,
                     IsCustomMode = IsCustomMode,
                     IsGameInactive=IsGameInactive,
-                    //SavedDate = DateTime.Now,
                     Cards = _cards.Select(c => new SavedCard
                     {
                         ImagePath = c.ImagePath,
@@ -519,11 +534,14 @@ namespace MemoryCardGameMAP.ViewModels
         public event Action<CardViewModel> CardClicked;
 
         private string _imagePath;
+        private string _cardBackImagePath;
         private int _pairId;
         private bool _isFaceUp;
         private bool _isMatched;
 
         public string ImagePath => _imagePath;
+        public string CardBackImagePath => _cardBackImagePath;
+
         public int PairId => _pairId;
 
         public bool IsFaceUp
@@ -548,10 +566,11 @@ namespace MemoryCardGameMAP.ViewModels
 
         public RelayCommand ClickCommand { get; private set; }
 
-        public CardViewModel(string imagePath, int pairId)
+        public CardViewModel(string imagePath, int pairId,string cardBackImagePath)
         {
             _imagePath = imagePath;
             _pairId = pairId;
+            _cardBackImagePath = cardBackImagePath;
 
             ClickCommand = new RelayCommand(param => OnClick());
         }
