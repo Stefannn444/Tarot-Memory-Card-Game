@@ -1,5 +1,5 @@
 # Tarot Memory Card Game
-A WPF(C# with .NET) game where you must match identical pairs of tarot cards before the time runs out.
+A WPF(C# with .NET) game where you must match identical pairs of tarot cards before the time runs out. Part of my university's Advanced Programming Environments Course
 
 ## Features 
 * **MVVM Architecture**
