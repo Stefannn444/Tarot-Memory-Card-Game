@@ -15,7 +15,6 @@
 		    <views:GameView/>
 	    </DataTemplate>
 
-	    <!-- Converters -->
 	    <common:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 	    <common:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
         <common:CategoryToBoolConverter x:Key="CategoryToBoolConverter"/>

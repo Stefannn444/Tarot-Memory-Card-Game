@@ -17,7 +17,6 @@ namespace MemoryCardGameMAP.Models
         public bool IsCustomMode { get; set; }
         public List<SavedCard> Cards { get; set; } = new List<SavedCard>();
         public bool IsGameInactive { get; set; }
-        //public DateTime SavedDate { get; set; }
         public bool CanSelectCard { get; set; }
         public int? FirstSelectedCardIndex { get; set; }
 

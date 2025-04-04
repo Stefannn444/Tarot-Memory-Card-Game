@@ -243,7 +243,16 @@ namespace MemoryCardGameMAP.ViewModels
                 window.ShowDialog();
                 List<double> parameters = window.GetValues();
                 TimeRemaining = (int)parameters[0];
-                IsUsingCustomTime = true;
+                if (TimeRemaining <= 0)
+                {
+                    MessageBox.Show("Insert a value above 0!");
+                    IsUsingCustomTime = false;
+                    TimeRemaining = 60 + (PairsTotal * 10);
+                }
+                else
+                {
+                    IsUsingCustomTime = true;
+                }
             }
             else if (mode == "Default")
             {

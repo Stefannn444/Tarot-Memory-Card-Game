@@ -14,9 +14,6 @@ using System.Windows.Shapes;
 
 namespace MemoryCardGameMAP
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private MainViewModel _mainViewModel;
@@ -27,30 +24,24 @@ namespace MemoryCardGameMAP
         {
             InitializeComponent();
 
-            // Create services
             _userService = new UserService();
 
-            // Create main view model
             _mainViewModel = new MainViewModel();
 
-            // Set up login view model
             var loginViewModel = new LoginViewModel(_userService, OnUserLoggedIn);
             _mainViewModel.CurrentViewModel = loginViewModel;
 
-            // Set the DataContext
             DataContext = _mainViewModel;
         }
 
         private void OnUserLoggedIn(User user)
         {
-            // Navigate to game view with the selected user
             var gameViewModel = new GameViewModel(user, _userService, ReturnToLogin);
             _mainViewModel.CurrentViewModel = gameViewModel;
         }
 
         private void ReturnToLogin()
         {
-            // Navigate back to login screen
             var loginViewModel = new LoginViewModel(_userService, OnUserLoggedIn);
             _mainViewModel.CurrentViewModel = loginViewModel;
         }
